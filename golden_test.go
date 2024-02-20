@@ -10,7 +10,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,7 +34,7 @@ var golden = []Golden{
 }
 
 var goldenJSON = []Golden{
-	{"primeJson", primeJsonIn},
+	{"primeJson", primeJSONIn},
 }
 var goldenText = []Golden{
 	{"primeText", primeTextIn},
@@ -45,7 +45,7 @@ var goldenYAML = []Golden{
 }
 
 var goldenSQL = []Golden{
-	{"primeSql", primeSqlIn},
+	{"primeSql", primeSQLIn},
 }
 
 var goldenGQLGen = []Golden{
@@ -53,7 +53,7 @@ var goldenGQLGen = []Golden{
 }
 
 var goldenJSONAndSQL = []Golden{
-	{"primeJsonAndSql", primeJsonAndSqlIn},
+	{"primeJsonAndSql", primeJSONAndSQLIn},
 }
 
 var goldenTrimPrefix = []Golden{
@@ -163,7 +163,7 @@ const (
 )
 `
 
-const primeJsonIn = `type Prime int
+const primeJSONIn = `type Prime int
 const (
 	p2 Prime = 2
 	p3 Prime = 3
@@ -220,7 +220,7 @@ const (
 )
 `
 
-const primeSqlIn = `type Prime int
+const primeSQLIn = `type Prime int
 const (
 	p2 Prime = 2
 	p3 Prime = 3
@@ -258,7 +258,7 @@ const (
 )
 `
 
-const primeJsonAndSqlIn = `type Prime int
+const primeJSONAndSQLIn = `type Prime int
 const (
 	p2 Prime = 2
 	p3 Prime = 3
@@ -360,7 +360,7 @@ func runGoldenTest(t *testing.T, test Golden,
 	file := test.name + ".go"
 	input := "package test\n" + test.input
 
-	dir, err := ioutil.TempDir("", "stringer")
+	dir, err := os.MkdirTemp("", "stringer")
 	if err != nil {
 		t.Error(err)
 	}
@@ -372,7 +372,7 @@ func runGoldenTest(t *testing.T, test Golden,
 	}()
 
 	absFile := filepath.Join(dir, file)
-	err = ioutil.WriteFile(absFile, []byte(input), 0644)
+	err = os.WriteFile(absFile, []byte(input), 0644)
 	if err != nil {
 		t.Error(err)
 	}
@@ -387,7 +387,7 @@ func runGoldenTest(t *testing.T, test Golden,
 	if got != loadGolden(test.name) {
 		// Use this to help build a golden text when changes are needed
 		//goldenFile := fmt.Sprintf("./testdata/%v.golden", test.name)
-		//err = ioutil.WriteFile(goldenFile, []byte(got), 0644)
+		// err = os.WriteFile(goldenFile, []byte(got), 0644)
 		//if err != nil {
 		//	t.Error(err)
 		//}
@@ -401,7 +401,7 @@ func loadGolden(name string) string {
 		return ""
 	}
 	defer fh.Close()
-	b, err := ioutil.ReadAll(fh)
+	b, err := io.ReadAll(fh)
 	if err != nil {
 		return ""
 	}
