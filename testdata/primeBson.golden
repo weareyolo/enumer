@@ -120,14 +120,20 @@ func (i Prime) IsAPrime() bool {
 	return ok
 }
 
-// MarshalText implements the encoding.TextMarshaler interface for Prime
-func (i Prime) MarshalText() ([]byte, error) {
-	return []byte(i.String()), nil
+// MarshalBSONValue implements the bson.ValueMarshaler interface for Prime
+func (i Prime) MarshalBSONValue() (bsontype.Type, []byte, error) {
+	return bson.TypeString, bsoncore.AppendString([]byte{}, i.String()), nil
 }
 
-// UnmarshalText implements the encoding.TextUnmarshaler interface for Prime
-func (i *Prime) UnmarshalText(text []byte) error {
-	var err error
-	*i, err = PrimeString(string(text))
+// UnmarshalBSONValue implements the bson.ValueUnmarshaler interface for Prime
+func (i *Prime) UnmarshalBSONValue(t bsontype.Type, src []byte) (err error) {
+	if t != bson.TypeString {
+		return fmt.Errorf("invalid BSON Type, expecting string got %s", t.String())
+	}
+	str, _, ok := bsoncore.ReadString(src)
+	if !ok {
+		return fmt.Errorf("error reading string from bson")
+	}
+	*i, err = PrimeString(str)
 	return err
 }

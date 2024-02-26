@@ -71,17 +71,10 @@ func NumValues() []Num {
 
 // NumStrings returns a slice of all String values of the enum
 func NumStrings() []string {
-	strs := make([]string, len(_NumNames))
-	copy(strs, _NumNames)
-	return strs
+	return slices.Clone(_NumNames)
 }
 
 // IsANum returns "true" if the value is listed in the enum definition. "false" otherwise
 func (i Num) IsANum() bool {
-	for _, v := range _NumValues {
-		if i == v {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(_NumValues, i)
 }

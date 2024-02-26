@@ -44,8 +44,9 @@ func (af *arrayFlags) Set(value string) error {
 
 var (
 	typeNames       = flag.String("type", "", "comma-separated list of type names; must be set")
-	sql             = flag.Bool("sql", false, "if true, the Scanner and Valuer interface will be implemented.")
+	sql             = flag.Bool("sql", false, "if true, the Scanner and Valuer interface will be implemented. Default: false")
 	json            = flag.Bool("json", false, "if true, json marshaling methods will be generated. Default: false")
+	bson            = flag.Bool("bson", false, "if true, bson marshaling methods will be generated. Default: false")
 	yaml            = flag.Bool("yaml", false, "if true, yaml marshaling methods will be generated. Default: false")
 	text            = flag.Bool("text", false, "if true, text marshaling methods will be generated. Default: false")
 	gqlgen          = flag.Bool("gqlgen", false, "if true, GraphQL marshaling methods for gqlgen will be generated. Default: false")
@@ -120,6 +121,7 @@ func main() {
 	g.Printf("import (\n")
 	g.Printf("\t\"fmt\"\n")
 	g.Printf("\t\"strings\"\n")
+	g.Printf("\t\"slices\"\n")
 	if *sql {
 		g.Printf("\t\"database/sql/driver\"\n")
 	}
@@ -130,11 +132,16 @@ func main() {
 		g.Printf("\t\"io\"\n")
 		g.Printf("\t\"strconv\"\n")
 	}
+	if *bson {
+		g.Printf("\t\"go.mongodb.org/mongo-driver/bson\"\n")
+		g.Printf("\t\"go.mongodb.org/mongo-driver/bson/bsontype\"\n")
+		g.Printf("\t\"go.mongodb.org/mongo-driver/x/bsonx/bsoncore\"\n")
+	}
 	g.Printf(")\n")
 
 	// Run generate for each type.
 	for _, typeName := range typs {
-		g.generate(typeName, *json, *yaml, *sql, *text, *gqlgen, *transformMethod, *trimPrefix, *addPrefix, *linecomment, *altValuesFunc)
+		g.generate(typeName, *json, *bson, *yaml, *sql, *text, *gqlgen, *transformMethod, *trimPrefix, *addPrefix, *linecomment, *altValuesFunc)
 	}
 
 	// Format the output.
@@ -413,7 +420,7 @@ func (g *Generator) prefixValueNames(values []Value, prefix string) {
 
 // generate produces the String method for the named type.
 func (g *Generator) generate(typeName string,
-	includeJSON, includeYAML, includeSQL, includeText, includeGQLGen bool,
+	includeJSON, includeBSON, includeYAML, includeSQL, includeText, includeGQLGen bool,
 	transformMethod string, trimPrefix string, addPrefix string, lineComment bool, includeValuesMethod bool) {
 	values := make([]Value, 0, 100)
 	for _, file := range g.pkg.files {
@@ -470,6 +477,9 @@ func (g *Generator) generate(typeName string,
 	g.buildBasicExtras(runs, typeName, runsThreshold)
 	if includeJSON {
 		g.buildJSONMethods(runs, typeName, runsThreshold)
+	}
+	if includeBSON {
+		g.buildBSONMethods(runs, typeName, runsThreshold)
 	}
 	if includeText {
 		g.buildTextMethods(runs, typeName, runsThreshold)
