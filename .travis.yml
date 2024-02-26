@@ -25,5 +25,5 @@ deploy:
   - cli/build/sha256sum.txt
   on:
     go: 1.17.x
-    repo: dmarkham/enumer
+    repo: weareyolo/enumer
     tags: true

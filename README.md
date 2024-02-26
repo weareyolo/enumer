@@ -1,20 +1,20 @@
-# Enumer [![GoDoc](https://godoc.org/github.com/dmarkham/enumer?status.svg)](https://godoc.org/github.com/dmarkham/enumer) [![Go Report Card](https://goreportcard.com/badge/github.com/dmarkham/enumer)](https://goreportcard.com/report/github.com/dmarkham/enumer) [![GitHub Release](https://img.shields.io/github/release/dmarkham/enumer.svg)](https://github.com/dmarkham/enumer/releases)[![Build Status](https://travis-ci.com/dmarkham/enumer.svg?branch=master)](https://travis-ci.com/dmarkham/enumer)
+# Enumer
 
+[![GoDoc](https://godoc.org/github.com/weareyolo/enumer?status.svg)](https://godoc.org/github.com/weareyolo/enumer) [![Go Report Card](https://goreportcard.com/badge/github.com/weareyolo/enumer)](https://goreportcard.com/report/github.com/weareyolo/enumer)
 
 Enumer is a tool to generate Go code that adds useful methods to Go enums (constants with a specific type).
 It started as a fork of [Rob Pike’s Stringer tool](https://godoc.org/golang.org/x/tools/cmd/stringer)
-maintained by [Álvaro López Espinosa](https://github.com/alvaroloes/enumer).
-This was again forked here as (https://github.com/dmarkham/enumer) picking up where Álvaro left off.
+maintained by [Álvaro López Espinosa](https://github.com/alvaroloes/enumer) to be then forked by [dmarkham/enumer](https://github.com/dmarkham/enumer)
+and finally forked again here [weareyolo/enumer](https://github.com/weareyolo/enumer) mainly to include BSON handling.
 
-
-```
+```sh
 $ ./enumer --help
 Enumer is a tool to generate Go code that adds useful methods to Go enums (constants with a specific type).
 Usage of ./enumer:
         Enumer [flags] -type T [directory]
         Enumer [flags] -type T files... # Must be a single package
 For more information, see:
-        http://godoc.org/github.com/dmarkham/enumer
+        http://godoc.org/github.com/weareyolo/enumer
 Flags:
   -addprefix string
         transform each item name by adding a prefix. Default: ""
@@ -45,7 +45,6 @@ Flags:
   -yaml
         if true, yaml marshaling methods will be generated. Default: false
 ```
-
 
 ## Generated functions and methods
 
@@ -83,11 +82,11 @@ For example, if we have an enum type called `Pill`,
 type Pill int
 
 const (
-	Placebo Pill = iota
-	Aspirin
-	Ibuprofen
-	Paracetamol
-	Acetaminophen = Paracetamol
+      Placebo Pill = iota
+      Aspirin
+      Ibuprofen
+      Paracetamol
+      Acetaminophen = Paracetamol
 )
 ```
 
@@ -95,31 +94,31 @@ executing `enumer -type=Pill -json` will generate a new file with four basic met
 
 ```go
 func (i Pill) String() string {
-	//...
+      //...
 }
 
 func PillString(s string) (Pill, error) {
-	//...
+      //...
 }
 
 func PillValues() []Pill {
-	//...
+      //...
 }
 
 func PillStrings() []string {
-	//...
+      //...
 }
 
 func (i Pill) IsAPill() bool {
-	//...
+      //...
 }
 
 func (i Pill) MarshalJSON() ([]byte, error) {
-	//...
+      //...
 }
 
 func (i *Pill) UnmarshalJSON(data []byte) error {
-	//...
+      //...
 }
 ```
 
@@ -134,8 +133,8 @@ fmt.Println("I need ", Paracetamol) // Will print "I need Paracetamol"
 // Convert a string with the enum name to the corresponding enum value
 pill, err := PillString("Ibuprofen") // "ibuprofen" will also work.
 if err != nil {
-    fmt.Println("Unrecognized pill: ", err)
-    return
+      fmt.Println("Unrecognized pill: ", err)
+      return
 }
 // Now pill == Ibuprofen
 
@@ -146,7 +145,7 @@ fmt.Println(allPills) // Will print [Placebo Aspirin Ibuprofen Paracetamol]
 // Check if a value belongs to the Pill enum values
 var notAPill Pill = 42
 if (notAPill.IsAPill()) {
-	fmt.Println(notAPill, "is not a value of the Pill enum")
+      fmt.Println(notAPill, "is not a value of the Pill enum")
 }
 
 // Marshal/unmarshal to/from json strings, either directly or automatically when
@@ -202,7 +201,7 @@ name := MyTypeValue.String() // name => "my_type_value"
 For a module-aware repo with `enumer` in the `go.mod` file, generation can be called by adding the following to a `.go` source file:
 
 ```golang
-//go:generate go run github.com/dmarkham/enumer -type=YOURTYPE
+//go:generate go run github.com/weareyolo/enumer -type=YOURTYPE
 ```
 
 There are six boolean flags: `json`, `bson`, `gqlgen`, `text`, `yaml` and `sql`. You can use any combination of them (i.e. `enumer -type=Pill -json -text`),
@@ -221,6 +220,7 @@ The boolean flag `values` will additionally create an alternative string values 
 
 ## Inspiring projects
 
+- [Dan Markham](https://github.com/dmarkham/enumer)
 - [Álvaro López Espinosa](https://github.com/alvaroloes/enumer)
 - [Stringer](https://godoc.org/golang.org/x/tools/cmd/stringer)
 - [jsonenums](https://github.com/campoy/jsonenums)
