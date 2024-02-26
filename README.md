@@ -3,7 +3,7 @@
 
 Enumer is a tool to generate Go code that adds useful methods to Go enums (constants with a specific type).
 It started as a fork of [Rob Pike’s Stringer tool](https://godoc.org/golang.org/x/tools/cmd/stringer)
-maintained by [Álvaro López Espinosa](https://github.com/alvaroloes/enumer). 
+maintained by [Álvaro López Espinosa](https://github.com/alvaroloes/enumer).
 This was again forked here as (https://github.com/dmarkham/enumer) picking up where Álvaro left off.
 
 
@@ -24,12 +24,14 @@ Flags:
         if true, GraphQL marshaling methods for gqlgen will be generated. Default: false
   -json
         if true, json marshaling methods will be generated. Default: false
+  -bson
+        if true, bson marshaling methods will be generated. Default: false
   -linecomment
         use line comment text as printed text when present
   -output string
         output file name; default srcdir/<type>_string.go
   -sql
-        if true, the Scanner and Valuer interface will be implemented.
+        if true, the Scanner and Valuer interface will be implemented. Default: false
   -text
         if true, text marshaling methods will be generated. Default: false
   -transform string
@@ -39,7 +41,7 @@ Flags:
   -type string
         comma-separated list of type names; must be set
   -values
-    	if true, alternative string values method will be generated. Default: false
+        if true, alternative string values method will be generated. Default: false
   -yaml
         if true, yaml marshaling methods will be generated. Default: false
 ```
@@ -63,6 +65,9 @@ When Enumer is applied to a type, it will generate:
 
 - When the flag `json` is provided, two additional methods will be generated, `MarshalJSON()` and `UnmarshalJSON()`. These make
   the enum conform to the `json.Marshaler` and `json.Unmarshaler` interfaces. Very useful to use it in JSON APIs.
+- When the flag `bson` is provided, two additional methods working with the official [MongoDB package](https://pkg.go.dev/go.mongodb.org/mongo-driver) will be generated, `MarshalBSONValue()` and `UnmarshalBSONValue()`. These make
+  the enum conform to the `bson.ValueMarshaler` and `bson.ValueUnmarshaler` interfaces.
+  This can be used when inserting and retrieving enums from MongoDB.
 - When the flag `text` is provided, two additional methods will be generated, `MarshalText()` and `UnmarshalText()`. These make
   the enum conform to the `encoding.TextMarshaler` and `encoding.TextUnmarshaler` interfaces.
   **Note:** If you use your enum values as keys in a map and you encode the map as _JSON_, you need this flag set to true to properly
@@ -71,7 +76,6 @@ When Enumer is applied to a type, it will generate:
   the enum conform to the `gopkg.in/yaml.v2.Marshaler` and `gopkg.in/yaml.v2.Unmarshaler` interfaces.
 - When the flag `sql` is provided, the methods for implementing the `Scanner` and `Valuer` interfaces.
   Useful when storing the enum in a database.
-
 
 For example, if we have an enum type called `Pill`,
 
@@ -201,7 +205,7 @@ For a module-aware repo with `enumer` in the `go.mod` file, generation can be ca
 //go:generate go run github.com/dmarkham/enumer -type=YOURTYPE
 ```
 
-There are four boolean flags: `json`, `text`, `yaml` and `sql`. You can use any combination of them (i.e. `enumer -type=Pill -json -text`),
+There are six boolean flags: `json`, `bson`, `gqlgen`, `text`, `yaml` and `sql`. You can use any combination of them (i.e. `enumer -type=Pill -json -text`),
 
 For enum string representation transformation the `transform` and `trimprefix` flags
 were added (i.e. `enumer -type=MyType -json -transform=snake`).

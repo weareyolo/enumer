@@ -63,17 +63,10 @@ func NumberValues() []Number {
 
 // NumberStrings returns a slice of all String values of the enum
 func NumberStrings() []string {
-	strs := make([]string, len(_NumberNames))
-	copy(strs, _NumberNames)
-	return strs
+	return slices.Clone(_NumberNames)
 }
 
 // IsANumber returns "true" if the value is listed in the enum definition. "false" otherwise
 func (i Number) IsANumber() bool {
-	for _, v := range _NumberValues {
-		if i == v {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(_NumberValues, i)
 }
